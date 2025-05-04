@@ -7,13 +7,9 @@ pipeline {
         docker { image 'django:latest' }
       }
       steps {
-        #timeout(time: 2, unit: 'MINUTES') { 
-          #script {
             // Run the Django server in the foreground
-            sh 'python3 manage.py #runserver 0.0.0.0:8000'
+            sh 'python3 manage.py' #runserver 0.0.0.0:8000'
             echo 'Django server started. Proceeding to next stage...'
-          #}
-        #}
       }
       post {
         always {

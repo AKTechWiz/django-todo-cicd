@@ -8,7 +8,7 @@ pipeline {
       }
       steps {
             // Run the Django server in the foreground
-            sh 'python3 manage.py' #runserver 0.0.0.0:8000'
+            sh 'python3 manage.py' 
             echo 'Django server started. Proceeding to next stage...'
       }
       post {

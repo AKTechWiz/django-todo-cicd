@@ -1,0 +1,51 @@
+pipeline {
+  agent any
+
+  stages {
+      stage('Build') {
+      agent {
+        docker { image 'django:latest' }
+      }
+      steps {
+        #timeout(time: 2, unit: 'MINUTES') { // Timeout after 12 minutes
+          #script {
+            // Run the Django server in the foreground
+            sh 'python3 manage.py #runserver 0.0.0.0:8000'
+            echo 'Django server started. Proceeding to next stage...'
+          #}
+        #}
+      }
+      post {
+        always {
+          echo 'Post action executed (server stopped if timeout occurred).'
+          // You can leave it out since timeout 12 minutes is already controlling the behavior.
+        }
+      }
+    }
+
+    stage('Deploy') {
+      steps {
+        // Build the image
+        sh 'docker build -t todo .'
+        
+        // Run the container with a specific name (e.g., 'todo_container')
+        sh 'docker run -d -p 8000:8000 --name todo_container todo'
+      }
+      post {
+        always {
+          echo 'Waiting for 2 minutes before stopping and deleting containers...'
+          // Sleep for 2 minutes before stopping and deleting containers
+          sleep 2
+
+          // Stop the container using its name
+          echo 'Stopping container...'
+          sh 'docker stop todo_container'
+
+          // Remove the container
+          echo 'Removing container...'
+          sh 'docker rm todo_container'
+        }
+      }
+    }
+  }
+}

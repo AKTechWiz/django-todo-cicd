@@ -2,24 +2,23 @@ pipeline {
   agent any
 
   stages {
-    stage('Build') {
+      stage('Build') {
       agent {
         docker { image 'django:latest' }
       }
       steps {
-        script {
-          // Start Django server in background
-          sh 'nohup python3 manage.py runserver 0.0.0.0:8000 &'
-
-          // Optional: wait a bit or do a health check here
-          sleep 10
-          echo 'Django server started (background). Proceeding to next stage...'
+        timeout(time: 2, unit: 'MINUTES') { // Timeout after 12 minutes
+          script {
+            // Run the Django server in the foreground
+            sh 'python3 manage.py runserver 0.0.0.0:8000'
+            echo 'Django server started. Proceeding to next stage...'
+          }
         }
       }
       post {
         always {
-          echo 'Stopping any Django runserver processes...'
-          sh 'timeout 10s pkill -f runserver || true'
+          echo 'Post action executed (server stopped if timeout occurred).'
+          // You can leave it out since timeout 12 minutes is already controlling the behavior.
         }
       }
     }

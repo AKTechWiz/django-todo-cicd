@@ -1,0 +1,52 @@
+pipeline {
+  agent any
+
+  stages {
+    stage('Build') {
+      agent {
+        docker { image 'django:latest' }
+      }
+      steps {
+        script {
+          // Start Django server in background
+          sh 'nohup python3 manage.py runserver 0.0.0.0:8000 &'
+
+          // Optional: wait a bit or do a health check here
+          sleep 10
+          echo 'Django server started (background). Proceeding to next stage...'
+        }
+      }
+      post {
+        always {
+          echo 'Stopping any Django runserver processes...'
+          sh 'timeout 10s pkill -f runserver || true'
+        }
+      }
+    }
+
+    stage('Deploy') {
+      steps {
+        // Build the image
+        sh 'docker build -t todo .'
+        
+        // Run the container with a specific name (e.g., 'todo_container')
+        sh 'docker run -d -p 8000:8000 --name todo_container todo'
+      }
+      post {
+        always {
+          echo 'Waiting for 2 minutes before stopping and deleting containers...'
+          // Sleep for 2 minutes before stopping and deleting containers
+          sleep 2
+
+          // Stop the container using its name
+          echo 'Stopping container...'
+          sh 'docker stop todo_container'
+
+          // Remove the container
+          echo 'Removing container...'
+          sh 'docker rm todo_container'
+        }
+      }
+    }
+  }
+}

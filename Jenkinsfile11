@@ -7,7 +7,7 @@ pipeline {
         docker { image 'django:latest' }
       }
       steps {
-        #timeout(time: 2, unit: 'MINUTES') { // Timeout after 12 minutes
+        #timeout(time: 2, unit: 'MINUTES') { 
           #script {
             // Run the Django server in the foreground
             sh 'python3 manage.py #runserver 0.0.0.0:8000'

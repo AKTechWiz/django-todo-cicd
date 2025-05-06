@@ -11,12 +11,6 @@ pipeline {
             sh 'python3 manage.py' 
             echo 'Django server started. Proceeding to next stage...'
       }
-      post {
-        always {
-          echo 'Post action executed (server stopped if timeout occurred).'
-          // You can leave it out since timeout 12 minutes is already controlling the behavior.
-        }
-      }
     }
 
     stage('Deploy') {

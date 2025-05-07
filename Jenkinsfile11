@@ -3,9 +3,6 @@ pipeline {
 
   stages {
       stage('Build') {
-      agent {
-        docker { image 'django:latest' }
-      }
       steps {
             // Run the Django server in the foreground
             sh 'python3 manage.py' 
